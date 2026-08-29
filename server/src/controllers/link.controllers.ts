@@ -3,7 +3,7 @@ import { CreateLinkInputType } from "../validations/link.validations";
 import { nanoid } from "nanoid";
 import { linkTable, NewLink } from "../db/schema/link.schema";
 import { db } from "../db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import ApiError from "../utils/ApiError";
 import ApiResponse from "../utils/ApiResponse";
 
@@ -47,16 +47,13 @@ const getLink = async (
   next: NextFunction
 ) => {
   try {
+    const userId = (req as any).user.id
     const { code } = req.params;
 
-    const [result] = await db.select().from(linkTable).where(eq(linkTable.code, code))
+    const [result] = await db.select().from(linkTable).where(and(eq(linkTable.code, code), eq(linkTable.userId, userId)))
 
     if(!result){
-      throw new ApiError(404, 'Link not found')
-    }
-
-    if(result.userId !== (req as any).user.id){
-      throw new ApiError(403, 'Not authorized to view this link')
+      throw new ApiError(404, 'Link not found or not authorized')
     }
 
     res
@@ -103,11 +100,15 @@ const deleteShortenLink = async (
   next: NextFunction
 ) => {
   try {
-
+    const userId = (req as any).user.id
     const { code } = req.params
 
-    await db.delete(linkTable).where(eq(linkTable.code, code))
+    const [result] = await db.delete(linkTable).where(and(eq(linkTable.code, code), eq(linkTable.userId, userId))).returning()
     
+    if(!result){
+      throw new ApiError(404, 'Link not found or not authorized')
+    }
+
     res
     .status(200)
     .json(new ApiResponse(200, "link deleted successfully", null))
