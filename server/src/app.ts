@@ -5,6 +5,7 @@ import { NextFunction, Request, Response } from "express";
 import ApiError from "./utils/ApiError";
 import AuthRoutes from "./routes/auth.routes";
 import LinkRoutes from "./routes/link.routes";
+import RedirectRoute from "./routes/redirect.routes"
 
 const app = express();
 
@@ -29,6 +30,9 @@ app.use("/api/v1/links", LinkRoutes);
 app.get("/healthcheck", (req, res) => {
   res.send("working fine");
 });
+
+// Ridrect route
+app.use('/', RedirectRoute);
 
 // Global error middleware
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
