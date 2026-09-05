@@ -5,9 +5,9 @@ import { Pool } from "pg";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
 
-export const db = drizzle({ client: pool });
+const db = drizzle({ client: pool });
 
-export const checkDBStatus = async () => {
+const checkDBStatus = async () => {
   try {
     await db.execute(sql`SELECT 1`);
     console.log("DB connected successfully");
@@ -16,3 +16,5 @@ export const checkDBStatus = async () => {
     process.exit(1);
   }
 };
+
+export { db, checkDBStatus };

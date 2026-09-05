@@ -82,11 +82,18 @@ const createShortenLink = async (
         userId
       }
 
-      await db.insert(linkTable).values(newLink)
+      const [result] = await db
+      .insert(linkTable)
+      .values(newLink)
+      .returning({
+      code: linkTable.code, 
+      fullLink: linkTable.fullLink, 
+      clickCount: linkTable.clickCount
+      });
 
       res
       .status(201)
-      .json(new ApiResponse(201, 'Short link created successfully', []))
+      .json(new ApiResponse(201, 'Short link created successfully', result))
 
     } catch (err) {
       next(err)
