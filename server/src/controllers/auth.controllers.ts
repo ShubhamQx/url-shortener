@@ -37,7 +37,7 @@ const registerUser = async (
     const [createdUser] = await db.insert(userTable).values(newUser).returning({
       id: userTable.id,
       email: userTable.email,
-      name: userTable.fullName,
+      fullName: userTable.fullName,
     });
 
     res
