@@ -1,10 +1,53 @@
-import { Link } from "react-router";
-import { useState } from "react";
+import axios from "axios";
+import type { ApiError } from "@/types/api";
+import {
+  Link,
+  Form,
+  useActionData,
+  useNavigation,
+  redirect,
+} from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import FormInput from "@/components/FormInput";
+import { loginUser } from "@/api/auth";
+import { useEffect, useState } from "react";
+
+export async function loginAction({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  try {
+    const res = await loginUser(email, password);
+    if(res.data.success === true){
+      return redirect("/")
+    }
+    console.log(res.data);
+    return res.data;
+  } catch (err) {
+    if (axios.isAxiosError<ApiError>(err)) {
+      return (
+        err.response?.data ?? {
+          statusCode: 0,
+          message: "Something went wrong",
+          success: false,
+        }
+      );
+    }
+    throw err;
+  }
+}
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const actionData = useActionData();
+  const navigation = useNavigation();
+
+  const [dismissError, setDismissError] = useState(false);
+  let showError = actionData?.success === false && !dismissError;
+
+  useEffect(() => {
+    setDismissError(false);
+  }, [actionData]);
 
   return (
     <div>
@@ -13,31 +56,42 @@ const Login = () => {
         <p className="text-text-muted text-sm">
           Login to your account using credentials
         </p>
+
+        {/* Displaying account login error */}
+        {showError && (
+          <p className="mt-2 text-start text-sm font-medium text-error">
+            Error: {actionData?.message}
+          </p>
+        )}
       </div>
-      <form className="flex flex-col gap-4">
+      <Form
+        action="/login"
+        method="POST"
+        onChange={() => setDismissError(true)}
+        className="flex flex-col gap-4"
+      >
         <FormInput
           id="email"
           label="Email"
           name="email"
-          placeHolder="Enter email"
+          placeholder="Enter email"
           type="email"
-          value={email}
-          setValue={setEmail}
+          required
         />
         <FormInput
           id="password"
           label="Password"
           name="password"
-          placeHolder="Enter password"
+          placeholder="Enter password"
           type="password"
-          value={password}
-          setValue={setPassword}
+          required
         />
         <button
           type="submit"
-          className="mt-2 text-text-primary p-2 text-center font-medium rounded-md bg-blue-500 w-full cursor-pointer"
+          disabled={navigation.state === "submitting"}
+          className="mt-2 text-text-primary p-2 text-center font-medium rounded-md bg-blue-600 w-full cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-60"
         >
-          Login
+          {navigation.state === "submitting" ? "Logging in..." : "Login"}
         </button>
 
         <p className="text-text-muted text-sm text-center mt-2">
@@ -46,7 +100,7 @@ const Login = () => {
             Register
           </Link>
         </p>
-      </form>
+      </Form>
     </div>
   );
 };

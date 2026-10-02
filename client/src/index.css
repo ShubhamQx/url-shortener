@@ -9,8 +9,8 @@
   --color-primary: ;
   --color-primary-hover: ;
   --color-border: hsl(0 0% 20%);
-  --color-success: ;
-  --color-error: ;
+  --color-success: oklch(72.3% 0.219 149.579);
+  --color-error: oklch(63.7% 0.237 25.331);
 }
 
 body {

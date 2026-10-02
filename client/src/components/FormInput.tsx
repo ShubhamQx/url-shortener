@@ -1,24 +1,10 @@
+import type { InputHTMLAttributes } from "react";
 
-
-interface FormInputProp {
-  id: string;
-  type: string;
-  name: string;
+interface FormInputProp extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  placeHolder: string;
-  value: string;
-  setValue: (newValue: string) => void;
 }
 
-const FormInput = ({
-  id,
-  type,
-  label,
-  name,
-  placeHolder,
-  value,
-  setValue,
-}: FormInputProp) => {
+const FormInput = ({ label, id, ...inputProps }: FormInputProp) => {
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-text-primary  font-medium text-sm">
@@ -26,12 +12,7 @@ const FormInput = ({
       </label>
       <input
         id={id}
-        name={name}
-        type={type}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeHolder}
-        autoComplete="off"
+        {...inputProps}
         className="text-text-primary bg-bg-light p-2 rounded-md border border-border text-sm"
       />
     </div>
