@@ -102,4 +102,32 @@ const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { registerUser, loginUser, logoutUser };
+const getMe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+)=> {
+  try {
+    const userId = (req as any).user.id
+    const [user] =  await db
+    .select({
+      id: userTable.id, 
+      fullName: userTable.fullName, 
+      email:userTable.email
+    })
+    .from(userTable)
+    .where(eq(userTable.id, userId)) 
+
+    if (!user) {
+      throw new ApiError(404, "User not found")
+    }
+
+    res
+    .status(200)
+    .json(new ApiResponse(200, "User found successfully", user))
+  } catch (err) {
+    next(err)
+  }
+}
+
+export { registerUser, loginUser, logoutUser, getMe };
