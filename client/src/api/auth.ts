@@ -1,11 +1,6 @@
 import api from "@/api/axios";
 import type { ApiResponse } from "@/types/api";
-
-interface User {
-  id: string;
-  fullName: string;
-  email: string;
-}
+import type { User } from "@/types/user";
 
 const loginUser = (email: string, password: string) => {
   return api.post<ApiResponse<User>>("/auth/login", { email, password });

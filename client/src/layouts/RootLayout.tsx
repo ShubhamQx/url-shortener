@@ -1,19 +1,39 @@
-import { Outlet } from "react-router"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
+import { Outlet, useLoaderData } from "react-router";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { getMe } from "@/api/auth";
+import axios from "axios";
+import type { ApiError } from "@/types/api";
+import type { User } from "@/types/user";
 
-const RootLayout = () => {
-  return (
-    <div className="w-full max-w-360 mx-auto min-h-screen bg-background flex flex-col">
-        <Header/>
+export async function rootLoader() {
+  try {
+    const res = await getMe();
 
-        <main className="flex-1">
-            <Outlet/>
-        </main>
-
-        <Footer/>
-    </div>
-  )
+    return { user: res.data.data as User };
+  } catch (err) {
+    if (axios.isAxiosError<ApiError>(err)) {
+      return { user: null };
+    }
+    throw err;
+  }
 }
 
-export default RootLayout
+const RootLayout = () => {
+  const { user } = useLoaderData() as { user: User | null };
+  console.log(user);
+
+  return (
+    <div className="w-full max-w-360 mx-auto min-h-screen bg-background flex flex-col">
+      <Header user={user} />
+
+      <main className="flex-1">
+        <Outlet />
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default RootLayout;

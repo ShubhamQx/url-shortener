@@ -1,6 +1,10 @@
 import { Link } from "react-router";
+import type { User } from "@/types/user";
 
-const Header = () => {
+interface HeaderProps {
+  user: User | null;
+}
+const Header = ({ user }: HeaderProps) => {
   return (
     <div className="bg-foreground py-4 px-6 flex justify-between items-center">
       <span className="font-extrabold text-xl text-gray-200">Shawty</span>
