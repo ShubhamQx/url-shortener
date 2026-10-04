@@ -18,12 +18,9 @@ export async function loginAction({ request }: ActionFunctionArgs) {
   const password = formData.get("password") as string;
 
   try {
-    const res = await loginUser(email, password);
-    if(res.data.success === true){
-      return redirect("/")
-    }
-    console.log(res.data);
-    return res.data;
+    await loginUser(email, password);
+    
+    return redirect("/");
   } catch (err) {
     if (axios.isAxiosError<ApiError>(err)) {
       return (
