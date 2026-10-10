@@ -21,14 +21,13 @@ export async function rootLoader() {
 
 const RootLayout = () => {
   const { user } = useLoaderData() as { user: User | null };
-  console.log(user);
 
   return (
     <div className="w-full max-w-360 mx-auto min-h-screen bg-background flex flex-col">
       <Header user={user} />
 
       <main className="flex-1">
-        <Outlet />
+        <Outlet context={user}/>
       </main>
 
       <Footer />
