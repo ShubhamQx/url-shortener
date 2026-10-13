@@ -30,7 +30,12 @@ const getAllLinks = async (
 
     const userId = (req as any).user.id
     
-    const links = await db.select().from(linkTable).where(eq(linkTable.userId, userId))
+    const links = await db.select({
+      code: linkTable.code, 
+      fullLink: linkTable.fullLink, 
+      clickCount: linkTable.clickCount,
+      createdAt: linkTable.createdAt
+      }).from(linkTable).where(eq(linkTable.userId, userId))
 
     res
     .status(200)
@@ -50,7 +55,12 @@ const getLink = async (
     const userId = (req as any).user.id
     const { code } = req.params;
 
-    const [result] = await db.select().from(linkTable).where(and(eq(linkTable.code, code), eq(linkTable.userId, userId)))
+    const [result] = await db.select({
+      code: linkTable.code, 
+      fullLink: linkTable.fullLink, 
+      clickCount: linkTable.clickCount,
+      createdAt: linkTable.createdAt
+      }).from(linkTable).where(and(eq(linkTable.code, code), eq(linkTable.userId, userId)))
 
     if(!result){
       throw new ApiError(404, 'Link not found or not authorized')
@@ -88,7 +98,8 @@ const createShortenLink = async (
       .returning({
       code: linkTable.code, 
       fullLink: linkTable.fullLink, 
-      clickCount: linkTable.clickCount
+      clickCount: linkTable.clickCount,
+      createdAt: linkTable.createdAt
       });
 
       res
