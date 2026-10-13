@@ -3,5 +3,5 @@ export interface Link {
   code: string;
   fullLink: string;
   clickCount: number;
-  createdAt: Date
+  createdAt: string;
 }
