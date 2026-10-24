@@ -10,6 +10,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import ApiError from "../utils/ApiError";
 import ApiResponse from "../utils/ApiResponse";
+import { cookieOptions } from "../config/cookie";
 
 const registerUser = async (
   req: Request<{}, {}, RegisterInputType>,
@@ -77,10 +78,20 @@ const loginUser = async (
       { expiresIn: "5m" },
     );
 
-    res.cookie("token", token, { httpOnly: true, secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie("token", token, {
+      ...cookieOptions,
+      maxAge: 5 * 60 * 1000,
+    });
 
-    res.status(200).json(new ApiResponse(200, "Logged in successfully", {id: user.id, fullName: user.fullName, email: user.email}));
-
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, "Logged in successfully", {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+        }),
+      );
   } catch (err) {
     next(err);
   }
@@ -91,43 +102,36 @@ const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.cookies.token) {
       throw new ApiError(400, "Already logged out");
     }
-    
+
     res
-      .clearCookie("token",{httpOnly: true, secure: false, maxAge: 7 * 24 * 60 * 60 * 1000})
+      .clearCookie("token", cookieOptions)
       .status(200)
       .json(new ApiResponse(200, "Logged out successfully", {}));
-
   } catch (err) {
     next(err);
   }
 };
 
-const getMe = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-)=> {
+const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user.id
-    const [user] =  await db
-    .select({
-      id: userTable.id, 
-      fullName: userTable.fullName, 
-      email:userTable.email
-    })
-    .from(userTable)
-    .where(eq(userTable.id, userId)) 
+    const userId = (req as any).user.id;
+    const [user] = await db
+      .select({
+        id: userTable.id,
+        fullName: userTable.fullName,
+        email: userTable.email,
+      })
+      .from(userTable)
+      .where(eq(userTable.id, userId));
 
     if (!user) {
-      throw new ApiError(404, "User not found")
+      throw new ApiError(404, "User not found");
     }
 
-    res
-    .status(200)
-    .json(new ApiResponse(200, "User found successfully", user))
+    res.status(200).json(new ApiResponse(200, "User found successfully", user));
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
 export { registerUser, loginUser, logoutUser, getMe };
