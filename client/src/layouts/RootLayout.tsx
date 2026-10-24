@@ -23,10 +23,10 @@ const RootLayout = () => {
   const { user } = useLoaderData() as { user: User | null };
 
   return (
-    <div className="w-full max-w-360 mx-auto min-h-screen bg-background flex flex-col">
+    <div className="w-full min-h-screen bg-background flex flex-col">
       <Header user={user} />
 
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-360 mx-auto">
         <Outlet context={user}/>
       </main>
 
