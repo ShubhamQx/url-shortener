@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { SubmitEvent } from "react";
-import { useNavigate, useOutletContext } from "react-router";
+import { useNavigate, useOutletContext, useRevalidator } from "react-router";
 import type { User } from "@/types/user";
 import { createLink } from "@/api/links";
 import axios from "axios";
@@ -11,6 +11,7 @@ import CreatedLinkCard from "@/components/CreatedLinkCard";
 const ShortenForm = () => {
   const user = useOutletContext<User | null>();
   const navigate = useNavigate();
+  const revalidator = useRevalidator()
 
   const [linkInput, setLinkInput] = useState<string>("");
   const [isInputInvalid, setIsInputInvalid] = useState<boolean>(false);
@@ -49,6 +50,9 @@ const ShortenForm = () => {
       setLinkInput("");
     } catch (err) {
       if (axios.isAxiosError<ApiError>(err)) {
+        if (err.response?.data.statusCode === 401) {
+          revalidator.revalidate()
+        }
         setError(err.response?.data.message ?? "Something went wrong...");
       } else {
         setError("Something went wrong...");
