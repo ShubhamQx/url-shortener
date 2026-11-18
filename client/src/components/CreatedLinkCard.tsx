@@ -1,15 +1,13 @@
 import type { Link } from "@/types/link";
+import { copyToClipboard } from "@/utils/copy";
+import { getShortUrl } from "@/utils/shortUrl";
 
 interface CreatedLinkCardProp {
   createdLink: Link;
 }
 
 const CreatedLinkCard = ({ createdLink }: CreatedLinkCardProp) => {
-  const shortUrl = `${import.meta.env.VITE_SHORT_BASE_URL}/${createdLink.code}`;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shortUrl);
-  };
+  const shortUrl = getShortUrl(createdLink.code);
 
   return (
     <div className="bg-foreground p-4 flex items-center justify-between gap-4">
@@ -26,7 +24,7 @@ const CreatedLinkCard = ({ createdLink }: CreatedLinkCardProp) => {
         </p>
       </div>
       <button
-        onClick={handleCopy}
+        onClick={() => copyToClipboard(shortUrl)}
         className="py-2 px-6 text-sm text-text-muted font-semibold border rounded-md border-border bg-bg-light transition-colors hover:bg-bg-light/80 active:bg-bg-light/40 cursor-pointer"
       >
         Copy
