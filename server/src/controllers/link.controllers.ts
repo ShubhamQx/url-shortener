@@ -3,7 +3,7 @@ import { CreateLinkInputType } from "../validations/link.validations";
 import { nanoid } from "nanoid";
 import { linkTable, NewLink } from "../db/schema/link.schema";
 import { db } from "../db";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import ApiError from "../utils/ApiError";
 import ApiResponse from "../utils/ApiResponse";
 
@@ -31,11 +31,12 @@ const getAllLinks = async (
     const userId = (req as any).user.id
     
     const links = await db.select({
+      id:linkTable.id,
       code: linkTable.code, 
       fullLink: linkTable.fullLink, 
       clickCount: linkTable.clickCount,
       createdAt: linkTable.createdAt
-      }).from(linkTable).where(eq(linkTable.userId, userId))
+      }).from(linkTable).where(eq(linkTable.userId, userId)).orderBy(desc(linkTable.createdAt))
 
     res
     .status(200)
@@ -56,6 +57,7 @@ const getLink = async (
     const { code } = req.params;
 
     const [result] = await db.select({
+      id:linkTable.id,
       code: linkTable.code, 
       fullLink: linkTable.fullLink, 
       clickCount: linkTable.clickCount,
