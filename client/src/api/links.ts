@@ -14,8 +14,8 @@ const getLink = async () => {
   return await api.get<ApiResponse<Link>>("/links/:code");
 };
 
-const deleteLink = async () => {
-  return await api.delete<ApiResponse<null>>("/links/:code");
+const deleteLink = async (code: string) => {
+  return await api.delete<ApiResponse<null>>(`/links/${code}`);
 };
 
 export { createLink, getLinks, getLink, deleteLink };
