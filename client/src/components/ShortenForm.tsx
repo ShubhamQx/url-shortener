@@ -8,22 +8,20 @@ import type { ApiError } from "@/types/api";
 import type { Link } from "@/types/link";
 import CreatedLinkCard from "@/components/CreatedLinkCard";
 
-const ShortenForm = () => {
+interface ShortenFormProps {
+  onCreated: (link: Link) => void;
+}
+
+const ShortenForm = ({ onCreated }: ShortenFormProps) => {
   const user = useOutletContext<User | null>();
   const navigate = useNavigate();
-  const revalidator = useRevalidator()
+  const revalidator = useRevalidator();
 
   const [linkInput, setLinkInput] = useState<string>("");
   const [isInputInvalid, setIsInputInvalid] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [createdLink, setCreatedLink] = useState<Link | null>(null);
   const [error, setError] = useState<string | null>(null);
-  {
-    createdLink && console.log(createdLink);
-  }
-  {
-    error && console.log(error);
-  }
 
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,12 +44,15 @@ const ShortenForm = () => {
     try {
       const res = await createLink(linkInput.trim());
 
-      setCreatedLink(res.data.data);
+      const newLink = res.data.data;
+
+      setCreatedLink(newLink);
+      onCreated(newLink);
       setLinkInput("");
     } catch (err) {
       if (axios.isAxiosError<ApiError>(err)) {
         if (err.response?.data.statusCode === 401) {
-          revalidator.revalidate()
+          revalidator.revalidate();
         }
         setError(err.response?.data.message ?? "Something went wrong...");
       } else {
@@ -91,7 +92,11 @@ const ShortenForm = () => {
         )}
       </div>
       <div>
-        {error && <p className="text-lg text-center font-semibold text-error">{error}</p>}
+        {error && (
+          <p className="text-lg text-center font-semibold text-error">
+            {error}
+          </p>
+        )}
         {createdLink && (
           <>
             <p className="text-lg text-center font-semibold text-success mb-2">

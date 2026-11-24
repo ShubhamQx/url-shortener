@@ -7,15 +7,16 @@ import axios from "axios";
 
 interface LinkItemProp {
   link: Link;
+  onDeleted: (id: string) => void;
 }
 
-const LinkItem = ({ link }: LinkItemProp) => {
+const LinkItem = ({ link, onDeleted }: LinkItemProp) => {
   const shortUrl = getShortUrl(link.code);
 
   const handleDelete = async () => {
     try {
       await deleteLink(link.code);
-      
+      onDeleted(link.code);
     } catch (err) {
       if (axios.isAxiosError<ApiError>(err)) {
         console.log(err.response?.data);

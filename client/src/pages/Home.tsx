@@ -2,9 +2,18 @@ import type { User } from "@/types/user";
 import { useOutletContext } from "react-router";
 import ShortenForm from "@/components/ShortenForm";
 import LinkList from "@/components/LinkList";
+import { useState } from "react";
+import type { Link } from "@/types/link";
 
 const Home = () => {
   const user = useOutletContext<User | null>();
+  const [links, setLinks] = useState<Link[]>([]);
+
+  const handleCreated = (link: Link) => setLinks((prev) => [link, ...prev]);
+
+  const handleDeleted = (code: string) => {
+    setLinks((prev) => prev.filter((l) => l.code !== code));
+  };
 
   return (
     <div className="min-h-screen">
@@ -18,14 +27,18 @@ const Home = () => {
             perform.
           </p>
         </div>
-        <ShortenForm />
+        <ShortenForm onCreated={handleCreated} />
       </div>
       {user && (
         <section className="my-20 px-6">
           <div className="py-2 mb-2">
             <p className="text-text-muted text-lg font-semibold">Your links</p>
           </div>
-          <LinkList />
+          <LinkList
+            links={links}
+            setLinks={setLinks}
+            onDeleted={handleDeleted}
+          />
         </section>
       )}
     </div>

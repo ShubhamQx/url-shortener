@@ -1,10 +1,16 @@
 import { getLinks } from "@/api/links";
-import type { Link } from "@/types/link";
 import { useEffect, useState } from "react";
 import LinkItem from "./LinkItem";
+import type { Link } from "@/types/link";
+import type { Dispatch, SetStateAction } from "react";
 
-const LinkList = () => {
-  const [linkList, setLinkList] = useState<Link[]>([]);
+interface LinkListProps {
+  links: Link[];
+  setLinks: Dispatch<SetStateAction<Link[]>>;
+  onDeleted: (code: string) => void;
+}
+
+const LinkList = ({ links, setLinks, onDeleted }: LinkListProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,7 +19,7 @@ const LinkList = () => {
       try {
         const res = await getLinks();
 
-        setLinkList(res.data.data ?? []);
+        setLinks(res.data.data ?? []);
       } catch (err) {
         setError("Couldn't load your links");
       } finally {
@@ -36,7 +42,7 @@ const LinkList = () => {
     return <p className=" font-medium text-error text-center py-8">{error}</p>;
   }
 
-  if (linkList.length === 0) {
+  if (links.length === 0) {
     return (
       <p className="font-medium text-text-primary py-8 text-center">
         Create a link first
@@ -47,8 +53,8 @@ const LinkList = () => {
   return (
     <div>
       <ul className="flex flex-col gap-1 ">
-        {linkList.map((link) => (
-          <LinkItem link={link} key={link.id} />
+        {links.map((link) => (
+          <LinkItem link={link} key={link.id} onDeleted={onDeleted} />
         ))}
       </ul>
     </div>
