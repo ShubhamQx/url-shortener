@@ -6,6 +6,7 @@ import { db } from "../db";
 import { and, desc, eq } from "drizzle-orm";
 import ApiError from "../utils/ApiError";
 import ApiResponse from "../utils/ApiResponse";
+import { linkFields } from "../utils/linkFields";
 
 const generateUniqueCode = async () => {
 
@@ -30,13 +31,7 @@ const getAllLinks = async (
 
     const userId = (req as any).user.id
     
-    const links = await db.select({
-      id:linkTable.id,
-      code: linkTable.code, 
-      fullLink: linkTable.fullLink, 
-      clickCount: linkTable.clickCount,
-      createdAt: linkTable.createdAt
-      }).from(linkTable).where(eq(linkTable.userId, userId)).orderBy(desc(linkTable.createdAt))
+    const links = await db.select(linkFields).from(linkTable).where(eq(linkTable.userId, userId)).orderBy(desc(linkTable.createdAt))
 
     res
     .status(200)
@@ -56,13 +51,7 @@ const getLink = async (
     const userId = (req as any).user.id
     const { code } = req.params;
 
-    const [result] = await db.select({
-      id:linkTable.id,
-      code: linkTable.code, 
-      fullLink: linkTable.fullLink, 
-      clickCount: linkTable.clickCount,
-      createdAt: linkTable.createdAt
-      }).from(linkTable).where(and(eq(linkTable.code, code), eq(linkTable.userId, userId)))
+    const [result] = await db.select(linkFields).from(linkTable).where(and(eq(linkTable.code, code), eq(linkTable.userId, userId)))
 
     if(!result){
       throw new ApiError(404, 'Link not found or not authorized')
@@ -97,12 +86,7 @@ const createShortenLink = async (
       const [result] = await db
       .insert(linkTable)
       .values(newLink)
-      .returning({
-      code: linkTable.code, 
-      fullLink: linkTable.fullLink, 
-      clickCount: linkTable.clickCount,
-      createdAt: linkTable.createdAt
-      });
+      .returning(linkFields);
 
       res
       .status(201)
